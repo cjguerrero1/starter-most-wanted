@@ -277,16 +277,22 @@ printAllToConsole(dataObject);
 */
 
 function initSearch(){
-	alert("Hello World");
 
 	// get all the information you need to run the search
 	var yourName = prompt("Who do you want to search for?");
+	
+	splitName(yourName);
 
-	// then pass that info to the respective function.
+	/* // then pass that info to the respective function.
 	var result = getPersonInfo("J", "T")
 
 	// once the search is done, pass the results to the responder function
-	responder(result);
+	responder(result); */
+}
+
+function splitName(fullName){
+	var firstAndLastName = fullName.split(' ');
+	getPersonInfo(firstAndLastName[0], firstAndLastName[1]);
 }
 
 function responder(results){
@@ -297,7 +303,7 @@ function responder(results){
 function getPersonInfo(firstname, lastname){
 	var result = "This will be the information for whoever you searched for";
 	// look up person's information
-	return result;
+	responder(result);
 }
 
 function getFamily(){
