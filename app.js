@@ -328,39 +328,50 @@ function getPerson(FirstName, LastName){
 			var person = people[i];
 		}
 	}
-	getPersonInfo(person);
-	
+	promptForDetailedSearch(person);	
 }
 
 function getFamily(){
 	// return list of names of immediate family members
 }
 
-function getPersonInfo(person){
+function getPersonProfile(person){
 	for (var key in person){
 		if (Object.prototype.hasOwnProperty.call(person, key)){
 			var val = person[key];
-			alert(key + ": " + val);
+			if (key == "parents" && person.parents.length != 0){
+				var parent1 = getNameFromId(person.parents[0]);
+				var parent2 = getNameFromId(person.parents[1]);
+			}
+			
+			else if (key == "currentSpouse" && person.currentSpouse != null){
+				var spouse = getNameFromId(person.currentSpouse);
+			}
 		}
 	}
+	var personProfile = ("Name: " + person.firstName + " " + person.lastName + "\n Gender: " + person.gender + "\n Date Of Birth: " + person.dob + "\n Height: " + person.height + "\n Weight: " + person.weight + "\n Eye Color: " + person.eyeColor + "\n Occupation: " + person.occupation + "\n Parents: " + parent1 + ", " + parent2 + "\n Spouse: " + spouse)
+	alert(personProfile);
 	promptForDetailedSearch(person);
 	
 	
 }
 function promptForDetailedSearch(person){
 	var searchOptions = prompt
-	("What else would you like to know about this person? (Enter number option)\n 1: Descendants \n 2: Next-Of-Kin \n 3: Immediate Family \n 4: Search For New Person");
+	("What would you like to know about this person? (Enter number option)\n 1: Profile \n 2: Descendants \n 3: Next-Of-Kin \n 4: Immediate Family \n 5: Search For New Person");
 	switch (searchOptions){
 		case "1":
-			searchForDescendants(person)
+			getPersonProfile(person)
 			break;
 		case "2":
-			searchForNextOfKin(person)
+			searchForDescendants(person)
 			break;
 		case "3":
-			searchForImmediateFamily(person)
+			searchForNextOfKin(person)
 			break;
 		case "4":
+			searchForImmediateFamily(person)
+			break;
+		case "5":
 			initSearch();
 			break;
 		default:
@@ -369,8 +380,19 @@ function promptForDetailedSearch(person){
 	}
 }
 
-function searchForDescendants(person){
-	alert("descendants");
+function searchForDescendants(parentPerson){
+	var descendants = [];
+	for (var i = 0; i < people.length; i++){
+		if (people[i].parents[0] === parentPerson.id){
+			descendants.push(people[i].firstName + " " + people[i].lastName);
+		}
+		else if (people[i].parents[1] === parentPerson.id){
+			descendants.push(people[i].firstName + " " + people[i].lastName);
+		}
+	}
+	var listDescendants = descendants.join();
+	alert(parentPerson.firstName + " " + parentPerson.lastName + " Descendants: \n" + listDescendants);
+	promptForDetailedSearch(parentPerson);
 }
 
 function searchForNextOfKin(person){
@@ -380,6 +402,18 @@ function searchForNextOfKin(person){
 function searchForImmediateFamily(person){
 	alert("immediate family");
 }
+
+function getNameFromId(id){
+	for (var i = 0; i < people.length; i++){
+		if(people[i].id == id){
+			var person = people[i];
+		}
+	}
+	var personName = person.firstName + " " + person.lastName;
+	return personName;
+}
+
+
 
 
 
