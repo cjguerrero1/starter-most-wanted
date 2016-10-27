@@ -343,9 +343,45 @@ function getPersonInfo(person){
 			alert(key + ": " + val);
 		}
 	}
+	promptForDetailedSearch(person);
 	
 	
 }
+function promptForDetailedSearch(person){
+	var searchOptions = prompt
+	("What else would you like to know about this person? (Enter number option)\n 1: Descendants \n 2: Next-Of-Kin \n 3: Immediate Family \n 4: Search For New Person");
+	switch (searchOptions){
+		case "1":
+			searchForDescendants(person)
+			break;
+		case "2":
+			searchForNextOfKin(person)
+			break;
+		case "3":
+			searchForImmediateFamily(person)
+			break;
+		case "4":
+			initSearch();
+			break;
+		default:
+			alert("I'm sorry, I didn't understand.");
+			promptForDetailedSearch(person);
+	}
+}
+
+function searchForDescendants(person){
+	alert("descendants");
+}
+
+function searchForNextOfKin(person){
+	alert("next of kin");
+}
+
+function searchForImmediateFamily(person){
+	alert("immediate family");
+}
+
+
 
 
 
