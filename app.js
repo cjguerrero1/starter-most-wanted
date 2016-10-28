@@ -336,11 +336,12 @@ function promptForDetailedSearch(person){
 			displayResults(descendants, person,1);
 			break;
 		case "3":
-			searchForNextOfKin(person);
+			var nextOfKin = searchForNextOfKin(person);
+			displayResults(nextOfKin, person,2)
 			break;
 		case "4":
 			var immediateFamily = searchForImmediateFamily(person);
-			displayResults(immediateFamily, person, 2);
+			displayResults(immediateFamily, person, 3);
 			break;
 		case "5":
 			initSearch();
@@ -378,6 +379,9 @@ function displayResults(results, parentPerson, choice){
 		choice = "Descendants: ";
 	}
 	else if(choice == 2){
+		choice = "Next-Of-Kin: ";
+	}
+	else if(choice == 3){
 		choice = "Immediate Family: ";
 	}
 	alert(parentPerson.firstName + " " + parentPerson.lastName + "\'s " + choice + "\n" + listResults);
@@ -385,7 +389,42 @@ function displayResults(results, parentPerson, choice){
 }
 
 function searchForNextOfKin(person){
-	alert("next of kin");
+	var nextOfKin = [];
+	if(person.spouse != null){
+		var spouse = getPersonFromId(person.spouse);
+		nextOfKin.push(spouse);
+	}
+	else{
+		var children = getChildren(person);
+		if(children != undefined && children.length != 0){
+			var kidAges = [];
+			for(var i = 0; i < children.length; i++){
+				var age = getAge(children[i].dob);
+				kidAges.push(age);
+			}
+			var oldest = Math.max.apply(Math, kidAges);
+			var oldestIndex = kidAges.indexOf(oldest);
+			nextOfKin.push(getPersonFromId(children[oldestIndex].id));
+		}
+		else{
+			var parents = getParents(person);
+			if(parents != undefined){
+				var parentAges = [];
+			for(var i = 0; i < parents.length; i++){
+				var age = getAge(parents[i].dob);
+				parentAges.push(age);
+			}
+			var oldest = Math.max.apply(Math, parentAges);
+			var oldestIndex = parentAges.indexOf(oldest);
+			nextOfKin.push(getPersonFromId(parents[oldestIndex].id));		
+			}
+			else{
+				var siblings = getSiblings(person);
+			}
+		}
+	}
+	
+	return nextOfKin;
 }
 
 function searchForImmediateFamily(person){
@@ -453,15 +492,10 @@ function getChildren(parentPerson){
 
 function getSpouse(person){
 	for (var i = 0; i < people.length; i++){
-		//if(people[i].currentSpouse != null){
-			if(people[i].id == person.currentSpouse){
-				var spouse = people[i];
-				return spouse;
-			}
-		/* }
-		else{
-			return undefined;
-		} */
+		if(people[i].id == person.currentSpouse){
+			var spouse = people[i];
+			return spouse;			
+		}
 	}
 }
 
@@ -498,6 +532,13 @@ function getPersonFromId(id){
 		}
 	}
 	return person;
+}
+
+function getAge(dob){
+    var today = new Date;
+    var birthDate = new Date(dob);
+    var age = (today.getUTCFullYear() - birthDate.getUTCFullYear());
+    return age;
 }
 
 initSearch();
