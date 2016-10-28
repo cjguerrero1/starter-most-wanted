@@ -390,8 +390,8 @@ function displayResults(results, parentPerson, choice){
 
 function searchForNextOfKin(person){
 	var nextOfKin = [];
-	if(person.spouse != null){
-		var spouse = getPersonFromId(person.spouse);
+	if(person.currentSpouse != null){
+		var spouse = getPersonFromId(person.currentSpouse);
 		nextOfKin.push(spouse);
 	}
 	else{
