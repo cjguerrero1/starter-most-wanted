@@ -287,39 +287,14 @@ var people = [
 	}
 ];
 
-
-/* function printAllToConsole(dataObj){
-	for (var key in dataObj) {
-		if (dataObj.hasOwnProperty(key)) {
-			console.log(key + " -> " + JSON.stringify(dataObj[key]));
-		}
-	}
-}
-printAllToConsole(dataObject);
- */
-
 function initSearch(){
-
-	// get all the information you need to run the search
 	var yourName = prompt("Who do you want to search for?");
-	
 	splitName(yourName);
-
-	/* // then pass that info to the respective function.
-	var result = getPerson("J", "T")
-
-	// once the search is done, pass the results to the responder function
-	responder(result); */
 }
 
 function splitName(fullName){
 	var firstAndLastName = fullName.split(' ');
 	getPerson(firstAndLastName[0], firstAndLastName[1]);
-}
-
-function responder(results){
-	// results may be a list of strings, an object, or a single string. 
-	alert(results);
 }
 
 function getPerson(FirstName, LastName){
@@ -331,10 +306,6 @@ function getPerson(FirstName, LastName){
 	promptForDetailedSearch(person);	
 }
 
-function getFamily(){
-	// return list of names of immediate family members
-}
-
 function getPersonProfile(person){
 	for (var key in person){
 		if (Object.prototype.hasOwnProperty.call(person, key)){
@@ -343,7 +314,6 @@ function getPersonProfile(person){
 				var parent1 = getNameFromId(person.parents[0]);
 				var parent2 = getNameFromId(person.parents[1]);
 			}
-			
 			else if (key == "currentSpouse" && person.currentSpouse != null){
 				var spouse = getNameFromId(person.currentSpouse);
 			}
@@ -352,24 +322,25 @@ function getPersonProfile(person){
 	var personProfile = ("Name: " + person.firstName + " " + person.lastName + "\n Gender: " + person.gender + "\n Date Of Birth: " + person.dob + "\n Height: " + person.height + "\n Weight: " + person.weight + "\n Eye Color: " + person.eyeColor + "\n Occupation: " + person.occupation + "\n Parents: " + parent1 + ", " + parent2 + "\n Spouse: " + spouse)
 	alert(personProfile);
 	promptForDetailedSearch(person);
-	
-	
 }
+
 function promptForDetailedSearch(person){
 	var searchOptions = prompt
 	("What would you like to know about this person? (Enter number option)\n 1: Profile \n 2: Descendants \n 3: Next-Of-Kin \n 4: Immediate Family \n 5: Search For New Person");
 	switch (searchOptions){
 		case "1":
-			getPersonProfile(person)
+			getPersonProfile(person);
 			break;
 		case "2":
-			searchForDescendants(person)
+			var descendants = searchForDescendants(person, people);
+			displayResults(descendants, person,1);
 			break;
 		case "3":
-			searchForNextOfKin(person)
+			searchForNextOfKin(person);
 			break;
 		case "4":
-			searchForImmediateFamily(person)
+			var immediateFamily = searchForImmediateFamily(person);
+			displayResults(immediateFamily, person, 2);
 			break;
 		case "5":
 			initSearch();
@@ -380,18 +351,36 @@ function promptForDetailedSearch(person){
 	}
 }
 
-function searchForDescendants(parentPerson){
-	var descendants = [];
-	for (var i = 0; i < people.length; i++){
-		if (people[i].parents[0] === parentPerson.id){
-			descendants.push(people[i].firstName + " " + people[i].lastName);
+function searchForDescendants(parentPerson, people){
+	var descendants = people.filter(function(x){
+		if(x.parents != undefined && x.parents.length != 0){
+			return x.parents[0] === parentPerson.id || x.parents[1] === parentPerson.id
 		}
-		else if (people[i].parents[1] === parentPerson.id){
-			descendants.push(people[i].firstName + " " + people[i].lastName);
+	});
+	for (var i = 0; i < descendants.length; i++){
+		var grandChild = searchForDescendants(descendants[i], people);
+		if(grandChild != undefined && grandChild.length != 0){
+			for (var x = 0; x < grandChild.length; x++){
+				descendants.push(grandChild[x]);
+			}
 		}
 	}
-	var listDescendants = descendants.join();
-	alert(parentPerson.firstName + " " + parentPerson.lastName + " Descendants: \n" + listDescendants);
+	return descendants;
+}
+
+function displayResults(results, parentPerson, choice){
+	var namesOfResults = [];
+	for (var i = 0; i < results.length; i++){
+		namesOfResults.push(getNameFromId(results[i].id));
+	}
+	var listResults = namesOfResults.join("\n");
+	if(choice == 1){
+		choice = "Descendants: ";
+	}
+	else if(choice == 2){
+		choice = "Immediate Family: ";
+	}
+	alert(parentPerson.firstName + " " + parentPerson.lastName + "\'s " + choice + "\n" + listResults);
 	promptForDetailedSearch(parentPerson);
 }
 
@@ -400,7 +389,47 @@ function searchForNextOfKin(person){
 }
 
 function searchForImmediateFamily(person){
-	alert("immediate family");
+	var immediateFamily = [];
+	var children = getChildren(person);	
+		if(children != undefined && children.length != 0){
+			for (var a = 0; a < children.length; a++){ 
+				immediateFamily.push(children[a]);
+			}
+		}
+		else{
+			children = null;
+		}
+	var spouse = getSpouse(person);
+		if(spouse != null){
+			immediateFamily.push(spouse);
+		}
+		else{
+			spouse = null;
+		}
+	var parents = getParents(person);
+		if(parents != undefined && parents.length != 0){
+			for (var b = 0; b < parents.length; b++){
+				immediateFamily.push(parents[b]);
+			}
+		}
+		else{
+			parents = null;
+		}
+	if(person.parents!= undefined && person.parents.length != 0){
+		var siblings = getSiblings(person);
+			if(siblings != undefined && siblings.length != 0){
+				for(var c = 0; c < siblings.length; c++){
+					immediateFamily.push(siblings[c]);
+				}
+			}
+			else{
+				siblings = null;
+			}
+	}
+	else{
+		var siblings = null;
+	}
+	return immediateFamily;
 }
 
 function getNameFromId(id){
@@ -413,13 +442,62 @@ function getNameFromId(id){
 	return personName;
 }
 
+function getChildren(parentPerson){
+	var children = people.filter(function(x){
+		if(x.parents != undefined && x.parents.length != 0){
+			return x.parents[0] === parentPerson.id || x.parents[1] === parentPerson.id
+		}
+	});
+	return children;
+}
 
+function getSpouse(person){
+	for (var i = 0; i < people.length; i++){
+		//if(people[i].currentSpouse != null){
+			if(people[i].id == person.currentSpouse){
+				var spouse = people[i];
+				return spouse;
+			}
+		/* }
+		else{
+			return undefined;
+		} */
+	}
+}
 
+function getParents(person){
+	if(person.parents != undefined && person.parents.length != 0){
+		var parents = person.parents;
+		for (var i = 0; i < parents.length; i++){
+			parents[i] = getPersonFromId(parents[i]);
+		}
+		return parents;
+	}
+	else{
+		return undefined;
+	}
+}
 
+function getSiblings(person){
+	var siblingsIncludingPerson = people.filter(function(x){
+		if(x.parents != undefined && x.parents.length != 0){
+			if(x.parents[0] == (person.parents[0].id || person.parents[1].id)|| x.parents[1] == (person.parents[0].id || person.parents[1].id)){
+				return x;
+			}
+		}
+	});
+	var siblings = siblingsIncludingPerson.filter(function(y){
+		return y.id != person.id;});
+	return siblings;
+}
 
-
-
-
-// there will be much more here, and some of the code above will certainly change
+function getPersonFromId(id){
+	for (var i = 0; i < people.length; i++){
+		if(people[i].id == id){
+			var person = people[i];
+		}
+	}
+	return person;
+}
 
 initSearch();
